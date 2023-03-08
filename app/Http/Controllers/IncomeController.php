@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 
 use Illuminate\Http\Request;
-use App\Models\fixedPayment;
+use App\Models\Income;
 use App\Models\Admin;
 use App\Models\Category;
 
-class FixedPaymentController extends Controller
+class IncomeController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,7 +16,7 @@ class FixedPaymentController extends Controller
     public function index()
     {
         
-        return fixedPayment::all();
+        return Income::all();
     }
 
     /**
@@ -29,14 +29,17 @@ class FixedPaymentController extends Controller
         $validatedData = $request->validate([
             'title' => 'required',
             'description' => 'required',
-            'type' => 'required|in:income,expense',
+            'type' => 'required|in:fixed,recurring',
             'amount' => 'required',
-            'currency' => 'required',
+            'currency'=>'required|in:USD,EUR,LBP',
             'category_title' => 'required',
+            'start_date'=>'required|date_format:Y-m-d',
+            'end_date'=>'required|date_format:Y-m-d|after_or_equal:start_date',
+        
         ]);
 
     // Find the category based on the category title provided
-        $category = Category::where('title', $validatedData['category_title'])->first();
+        $category = Income::where('title', $validatedData['category_title'])->first();
     
         // If the category does not exist, create a new category and add it to the database
         if (!$category) {
@@ -56,7 +59,7 @@ class FixedPaymentController extends Controller
          $validatedData['created_by'] = auth()->user()->username;
 
         // Create a new payment and associate it with the current admin and category
-        $fixedPayment = fixedPayment::create([
+        $income = Income::create([
             'title' => $validatedData['title'],
             'type' => $validatedData['type'],
             'description' => $validatedData['description'],
@@ -66,16 +69,14 @@ class FixedPaymentController extends Controller
             'category_title' => $category->title,  
             'admin_id' => auth()->user()->id,           
             'created_by' => auth()->user()->username,
+            
         ]);
         
 
-        //  // Get all payments associated with the admin
-        // $admin = Admin::find(1); // Get a admin by ID
-        // $fixedPayment = $admin->fixedPayment; // Get all payments associated with the admin
-            
-        // // Get all payments associated with the category
-        //  $category = Category::find(1); // Get a category by ID
-        //  $fixedPayment = $category->fixedPayment; // Get all payments associated with the category
+    // Get a admin by ID
+    $admin = auth()->user();
+    // $admin = Admin::find(auth()->user()->id);
+    $income = $admin->income; // Get all payments associated with the admin
 
        return $validatedData;
     }
@@ -85,7 +86,7 @@ class FixedPaymentController extends Controller
      */
     public function show($id)
     {
-        return fixedPayment::find($id);
+        return Income::find($id);
     }
 
     /**
@@ -93,15 +94,17 @@ class FixedPaymentController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $fixedPayment = fixedPayment::find($id);
-        if($fixedPayment){
+        $income = Income::find($id);
+        if($income){
 
             $validatedData = $request->validate([
                 'title',
                 'description',
                 'type' => 'in:income,expense',
                 'amount',
-                'currency',
+                'currency'=>'in:USD,LBP,EUR',
+                'start_date' => 'date_format:Y-m-d',
+                'end_date' => 'date_format:Y-m-d|after_or_equal:start_date',
                 'category_id',
             ]);
 
@@ -121,15 +124,15 @@ class FixedPaymentController extends Controller
          $validatedData['admin_id'] = auth()->user()->id;
          $validatedData['updated_by'] = auth()->user()->username;
 
-         $fixedPayment->update($request->all());
-         $fixedPayment->update($validatedData);
-         $updatedPayment = fixedPayment::find($id); // retrieve updated data from the database
+         $income->update($request->all());
+         $income->update($validatedData);
+         $updatedIncome = Income::find($id); // retrieve updated data from the database
 
         // Get all payments associated with the admin
         $admin = Admin::find(1); // Get a admin by ID
-        $fixedPayment = $admin->fixedPayment; // Get all payments associated with the admin
+        $income = $admin->income; // Get all payments associated with the admin
 
-        return $updatedPayment;
+        return $updatedIncome;
     }else{
         return [
             'message' => "Payment not found"
@@ -142,13 +145,13 @@ class FixedPaymentController extends Controller
      */
     public function destroy(string $id)
     {
-        $fixedPayment =fixedPayment::find($id);
-        if($fixedPayment){
+        $income =Income::find($id);
+        if($income){
 
          // Get the current authenticated admin
          $validatedData['deleted_by'] = auth()->user()->username;
-            $fixedPayment->update($validatedData);
-            $fixedPayment->delete();
+            $income->update($validatedData);
+            $income->delete();
             return [
                 'message' => "Deleted successfuly"
             ];
@@ -166,6 +169,6 @@ class FixedPaymentController extends Controller
      */
     public function search($title)
     {
-     return   fixedPayment::where('title','like', '%'.$title.'%')->get();
+     return   Income::where('title','like', '%'.$title.'%')->get();
     }
 }

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\fixedPayment;
+use App\Models\Income;
 use App\Http\Admin;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -20,10 +20,10 @@ class Category extends Model
         'admin_id',
     ];
 
-    public function fixedPayments(): HasMany
+    public function income(): HasMany
     {
         
-        return $this->hasMany(fixedPayment::class);
+        return $this->hasMany(Income::class);
     }
 
     public function admin(){

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class RecurringPayment extends Model
+class Expense extends Model
 {
     use HasFactory;
     use SoftDeletes;
@@ -93,7 +93,7 @@ public function deletedBy()
     return $this->belongsTo(Category::class);
 }
 
-public function admin()
+public function user()
 {
     return $this->belongsTo(Admin::class);
 }

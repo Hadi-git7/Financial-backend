@@ -5,19 +5,19 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorerecurringPaymentRequest;
 use App\Http\Requests\UpdaterecurringPaymentRequest;
 use App\Models\Admin;
-use App\Models\recurringPayment;
+use App\Models\Expense;
 use Illuminate\Http\Request;
 use App\Models\Category;
 
 
-class RecurringPaymentController extends Controller
+class ExpenseController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return recurringPayment::all();
+        return Expense::all();
     }
 
     /**
@@ -33,7 +33,7 @@ class RecurringPaymentController extends Controller
 
 
         $validatedData = $request->validate([
-            'type'=>'required|in:income,expense',
+            'type' => 'required|in:fixed,recurring',
             'title'=>'required',
             'description'=>'required',
             'amount'=>'required',
@@ -45,13 +45,13 @@ class RecurringPaymentController extends Controller
         ]);
     
         // Find the category based on the category title provided
-        $category = Category::where('title', $validatedData['category_title'])->first();
+        $category = Expense::where('title', $validatedData['category_title'])->first();
 
         // If the category does not exist, create a new category and add it to the database
         if (!$category) {
             $category = new Category();
             $category->title = $validatedData['category_title'];
-            $validatedData['admin_id'] = auth()->user()->id;
+            $category->admin_id = auth()->user()->id; // Set the created_by attribute to the username of the authenticated user
             $category->created_by = auth()->user()->username; // Set the created_by attribute to the username of the authenticated user
             $category->save();
         }
@@ -72,7 +72,7 @@ class RecurringPaymentController extends Controller
 
 
 // Create a new payment and associate it with the current admin and category
-$recurringPayment = recurringPayment::create([
+$expense = Expense::create([
     'type' => $validatedData['type'],
     'title' => $validatedData['title'],
     'description' => $validatedData['description'],
@@ -91,7 +91,7 @@ $recurringPayment = recurringPayment::create([
      // Get a admin by ID
     $admin = auth()->user();
     // $admin = Admin::find(auth()->user()->id);
-    $recurringPayment = $admin->recurringPayment; // Get all payments associated with the admin
+    $expense = $admin->expense; // Get all payments associated with the admin
 
   
     return $validatedData;
@@ -102,7 +102,7 @@ $recurringPayment = recurringPayment::create([
      */
     public function show($id)
     {
-        return recurringPayment::find($id);   
+        return Expense::find($id);   
     }
 
     /**
@@ -115,15 +115,12 @@ $recurringPayment = recurringPayment::create([
      */
     public function update(Request $request, $id)
     {
-        // $recurring_payment = recurringPayment::find($id);
-        // $recurring_payment->update($request->all());
-        // return $recurring_payment;
-
-            $recurringPayment = recurringPayment::find($id);
-            if($recurringPayment){
+      
+            $expense = Expense::find($id);
+            if($expense){
         
                 $validatedData = $request->validate([
-                    'type' => 'in:income,expense',
+                    'type' => 'required|in:fixed,recurring',
                     'title',
                     'description', 
                     'created_by', 
@@ -151,17 +148,17 @@ $recurringPayment = recurringPayment::create([
       $validatedData['admin_id'] = auth()->user()->id;
       $validatedData['updated_by'] = auth()->user()->username;
 
-      $recurringPayment->update($request->all());
-      $recurringPayment->update($validatedData);
-      $updatedPayment = recurringPayment::find($id); // retrieve updated data from the database
+      $expense->update($request->all());
+      $expense->update($validatedData);
+      $updatedExpense = Expense::find($id); // retrieve updated data from the database
 
       // Get all payments associated with the admin
     //   $admin = Admin::find(1); 
       // Get a admin by ID
       $admin = auth()->user();
-      $recurringPayment = $admin->recurringPayment; // Get all payments associated with the admin
+      $expense = $admin->expense; // Get all payments associated with the admin
 
-      return $updatedPayment;
+      return $updatedExpense;
   }else{
       return [
             'message' => "Payment not found"
@@ -174,12 +171,12 @@ $recurringPayment = recurringPayment::create([
      */
     public function destroy($id)
 {
-    $recurringPayment = recurringPayment::find($id);
-    if ($recurringPayment) {
+    $expense = Expense::find($id);
+    if ($expense) {
        // Get the current authenticated admin
        $validatedData['deleted_by'] = auth()->user()->username;
-       $recurringPayment->update($validatedData);
-       $recurringPayment->delete();
+       $expense->update($validatedData);
+       $expense->delete();
        return [
            'message' => "Deleted successfuly"
        ];
@@ -191,6 +188,6 @@ $recurringPayment = recurringPayment::create([
 
     public function search($title)
     {
-        return recurringPayment::where('title', 'like', '%'.$title.'%')->get();
+        return Expense::where('title', 'like', '%'.$title.'%')->get();
     }
 }
