@@ -21,11 +21,6 @@ class Goal extends Model
         'admin_id',
     ];
 
-    protected $dates = [
-       'year',
-        
-    ];
-
     public function user(){
         return $this->belongsTo(Admin::class);
     }
@@ -40,16 +35,6 @@ class Goal extends Model
         return $this->belongsTo(Admin::class, 'username');
     }
     
-
-    public function setYearAttribute($date)
-    {
-        $this->attributes['year'] = Carbon::parse($date);
-    }
-
-    public function getYearAttribute($date)
-    {
-        return Carbon::parse($date)->format('Y');
-    }
 
     public function deletedBy()
     {

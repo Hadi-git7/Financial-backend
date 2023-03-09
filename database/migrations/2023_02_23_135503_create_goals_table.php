@@ -17,7 +17,7 @@ return new class extends Migration
             $table->decimal('totalIncome', 15, 2)->nullable()->default(null);
             $table->decimal('totalExpense', 15, 2)->nullable()->default(null);
             $table->decimal('profit', 15, 2);
-            $table->date('year')->default(Carbon::today()->addYear());
+            $table->decimal('year', 4, 0);
             $table->decimal('profit_calculated', 15, 2)->nullable()->default(null);
             $table->string('created_by');
             $table->string('updated_by')->nullable()->default(null);
