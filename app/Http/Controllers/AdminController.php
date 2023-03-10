@@ -102,6 +102,7 @@ class AdminController extends Controller
         $response = [
             'admin' => $admin,
             'token' => $token,
+            'is_super' => $admin->is_super,
         ];
 
         return response($response,201);
