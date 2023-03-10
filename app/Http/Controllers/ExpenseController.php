@@ -30,23 +30,20 @@ class ExpenseController extends Controller
      */
     public function store(Request $request)
     {
-
-
         $validatedData = $request->validate([
+            'title' => 'required',
+            'description' => 'required',
             'type' => 'required|in:fixed,recurring',
-            'title'=>'required',
-            'description'=>'required',
-            'amount'=>'required',
+            'amount' => 'required',
             'currency'=>'required|in:USD,EUR,LBP',
-            'category_title'=>'required',
+            'category_title' => 'required',
             'start_date'=>'required|date_format:Y-m-d',
             'end_date'=>'required|date_format:Y-m-d|after_or_equal:start_date',
-        
         ]);
     
         // Find the category based on the category title provided
-        $category = Expense::where('title', $validatedData['category_title'])->first();
-
+        $category = Category::where('title', $validatedData['category_title'])->first();
+    
         // If the category does not exist, create a new category and add it to the database
         if (!$category) {
             $category = new Category();
@@ -55,47 +52,55 @@ class ExpenseController extends Controller
             $category->created_by = auth()->user()->username; // Set the created_by attribute to the username of the authenticated user
             $category->save();
         }
-
+    
         // Add the category ID to the validated data array
-         $validatedData['category_id'] = $category->id;
-         $validatedData['category_title'] = $category->title;
-
-         // Get the current authenticated admin
-    $validatedData['admin_id'] = auth()->user()->id;
-    $validatedData['created_by'] = auth()->user()->username;
-
-    // Create a new payment and associate it with the current admin
-    // $recurringPayment = recurringPayment::create( $validatedData);
-
-
-
-
-
-// Create a new payment and associate it with the current admin and category
-$expense = Expense::create([
-    'type' => $validatedData['type'],
-    'title' => $validatedData['title'],
-    'description' => $validatedData['description'],
-    'amount' => $validatedData['amount'],
-    'currency' => $validatedData['currency'],
-    'category_id' => $category->id,
-    'category_title' => $category->title, // set the category_title attribute on the Payment model
-    'admin_id' => auth()->user()->id,
-    'created_by' => auth()->user()->username,
-]);
-
-
-
-// Get a category by ID
-// $category = Category::find(1); 
-     // Get a admin by ID
-    $admin = auth()->user();
-    // $admin = Admin::find(auth()->user()->id);
-    $expense = $admin->expense; // Get all payments associated with the admin
-
-  
-    return $validatedData;
+        $validatedData['category_id'] = $category->id;
+        $validatedData['category_title'] = $category->title;
+    
+        // Get the current authenticated admin
+        $validatedData['admin_id'] = auth()->user()->id;
+        $validatedData['created_by'] = auth()->user()->username;
+    
+        // Check if a payment with the same title, category and admin already exists in the database
+        $expense = Expense::where('title', $validatedData['title'])
+                        ->where('category_id', $validatedData['category_id'])
+                        ->where('admin_id', $validatedData['admin_id'])
+                        ->first();
+    
+        // If the payment already exists, update its details instead of creating a new one
+        if ($expense) {
+            $expense->update([
+                'type' => $validatedData['type'],
+                'description' => $validatedData['description'],
+                'amount' => $validatedData['amount'],
+                'currency' => $validatedData['currency'],
+                'start_date' => $validatedData['start_date'],
+                'end_date' => $validatedData['end_date'],
+            ]);
+        } else {
+            // Create a new payment and associate it with the current admin and category
+            $expense = Expense::create([
+                'title' => $validatedData['title'],
+                'type' => $validatedData['type'],
+                'description' => $validatedData['description'],
+                'amount' => $validatedData['amount'],
+                'currency' => $validatedData['currency'],
+                'category_id' => $category->id,
+                'category_title' => $category->title,  
+                'admin_id' => auth()->user()->id,           
+                'created_by' => auth()->user()->username,
+                'start_date'=>$validatedData['start_date'],
+                'end_date'=> $validatedData['end_date'],
+            ]);
+        }
+    
+        // Get all payments associated with the admin
+        $admin = auth()->user();
+        $income = $admin->expense;
+    
+        return $validatedData;
     }
+    
 
     /**
      * Display the specified resource.

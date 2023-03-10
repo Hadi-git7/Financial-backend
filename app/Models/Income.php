@@ -26,13 +26,15 @@ class Income extends Model
         'deleted_by',
         'category_id',
         'category_title',
-    ];
-
-    protected $dates = [
         'start_date',
         'end_date',
-        
     ];
+
+    // protected $dates = [
+    //     'start_date',
+    //     'end_date',
+        
+    // ];
 
     protected $appends = ['categoryTitle']; // add the attribute name here
 
@@ -73,25 +75,25 @@ public function deletedBy()
     return $this->belongsTo(Admin::class, 'username');
 }
 
-public function setStartDateAttribute($date)
-{
-    $this->attributes['start_date'] = Carbon::parse($date);
-}
+// public function setStartDateAttribute($date)
+// {
+//     $this->attributes['start_date'] = Carbon::parse($date);
+// }
 
-public function setEndDateAttribute($date)
-{
-    $this->attributes['end_date'] = Carbon::parse($date);
-}
+// public function setEndDateAttribute($date)
+// {
+//     $this->attributes['end_date'] = Carbon::parse($date);
+// }
 
-public function getStartDateAttribute($date)
-{
-    return Carbon::parse($date)->format('Y-m-d');
-}
+// public function getStartDateAttribute($date)
+// {
+//     return Carbon::parse($date)->format('Y-m-d');
+// }
 
-public function getEndDateAttribute($date)
-{
-    return Carbon::parse($date)->format('Y-m-d');
-}
+// public function getEndDateAttribute($date)
+// {
+//     return Carbon::parse($date)->format('Y-m-d');
+// }
 
 
 

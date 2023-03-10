@@ -21,16 +21,16 @@ class GoalController extends Controller
     {
         $validatedData = $request->validate([
             'profit' => 'required',
-            'year' =>'required|date_format:Y',
-            // 'created_by' => 'nullable'
+            'year' =>'required',
         ]);
     
         $validatedData['admin_id'] = auth()->user()->id;
         $validatedData['created_by'] = auth()->user()->username;
     
+        
         $goal = Goal::create([
             'profit' => $validatedData['profit'],
-            // 'year' => $validatedData['year'],
+            'year' => $validatedData['year'],
             'admin_id' => $validatedData['admin_id'],
             'created_by' => $validatedData['created_by'],
         ]);
@@ -58,7 +58,7 @@ class GoalController extends Controller
           
             $validatedData = $request->validate([
                 'profit',
-                'year',
+                'year' ,
             ]);
 
 

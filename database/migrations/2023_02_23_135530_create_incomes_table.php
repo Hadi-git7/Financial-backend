@@ -28,8 +28,8 @@ return new class extends Migration
             $table->string('created_by');
             $table->string('updated_by')->nullable()->default(null);
             $table->string('deleted_by')->nullable()->default(null);
-            $table->date('start_date')->default(Carbon::today());
-            $table->date('end_date')->default(Carbon::today()->addYear());
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();            
             $table->timestamps();
         });
     }

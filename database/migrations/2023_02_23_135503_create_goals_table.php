@@ -1,6 +1,6 @@
 <?php
 
-use Carbon\Carbon;
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,7 +17,7 @@ return new class extends Migration
             $table->decimal('totalIncome', 15, 2)->nullable()->default(null);
             $table->decimal('totalExpense', 15, 2)->nullable()->default(null);
             $table->decimal('profit', 15, 2);
-            $table->date('year')->default(Carbon::today()->addYear());
+            $table->decimal('year',4,0);
             $table->decimal('profit_calculated', 15, 2)->nullable()->default(null);
             $table->string('created_by');
             $table->string('updated_by')->nullable()->default(null);
@@ -35,5 +35,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('goals');
+
     }
 };

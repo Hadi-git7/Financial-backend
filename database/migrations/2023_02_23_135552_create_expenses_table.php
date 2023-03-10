@@ -23,8 +23,8 @@ return new class extends Migration
             $table->float('amount', 7 , 2);
             $table->string('currency');
             $table->softDeletes();
-            $table->date('start_date')->default(Carbon::today());
-            $table->date('end_date')->default(Carbon::today()->addYear());
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();    
             $table->unsignedBigInteger('admin_id');
             $table->foreign('admin_id')->references('id')->on('admins')->onDelete('cascade');
             $table->unsignedBigInteger('category_id');
